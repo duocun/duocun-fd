@@ -184,7 +184,8 @@ export class HomeComponent implements OnInit, OnDestroy {
         } else {
           const code = queryParams.get('code');
           this.loading = true;
-          this.login(code).then((account: IAccount) => {
+          // this.login(code).then((account: IAccount) => {
+          this.accountSvc.getCurrentAccount().pipe(takeUntil(this.onDestroy$)).subscribe(account => {
             if (account) { // if already use cookie to login
               self.account = account;
               self.snackBar.open('', '微信登录成功。', { duration: 1000 });
@@ -196,55 +197,6 @@ export class HomeComponent implements OnInit, OnDestroy {
               resolve();
             }
           });
-
-          // v1
-          // try default login
-          // self.accountSvc.getCurrentAccount().pipe(takeUntil(this.onDestroy$)).subscribe((account: IAccount) => {
-          //   if (account) { // if already use cookie to login
-          //     self.account = account;
-          //     self.snackBar.open('', '微信登录成功。', { duration: 1000 });
-          //     self.init(account).then((origin: any) => {
-          //       resolve(origin);
-          //     });
-          //   } else {
-          //     const code = queryParams.get('code');
-          //     if (code) { // try wechat login
-          //       this.accountSvc.wechatLogin(code).pipe(takeUntil(this.onDestroy$)).subscribe((tokenId: string) => {
-          //         if (tokenId) {
-          //           self.authSvc.setAccessTokenId(tokenId);
-          //           // retry default login
-          //           self.accountSvc.getCurrentAccount().pipe(takeUntil(this.onDestroy$)).subscribe((accountWX: Account) => {
-          //             if (accountWX) {
-          //               self.account = accountWX;
-          //               self.snackBar.open('', '微信登录成功。', { duration: 1000 });
-          //               self.init(accountWX).then((origin: any) => {
-          //                 resolve(origin);
-          //               });
-          //             } else {
-          //               self.snackBar.open('', '微信登录失败。', { duration: 1000 });
-          //               resolve();
-          //             }
-          //           });
-          //         } else { // failed from shared link login
-          //           this.loading = false;
-
-          //           setTimeout(() => {
-          //             // redirect to wechat authorize button page
-          //             window.location.href = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=' + WECHAT_APP_ID
-          //               + '&redirect_uri=' + WECHAT_REDIRCT_URL
-          //               + '&response_type=code&scope=snsapi_userinfo&state=123#wechat_redirect';
-
-          //             resolve(); // fix me !!!
-          //           }, 500);
-          //         }
-          //       });
-          //     } else { // no code in router, means did not use wechat login, and failed to use default login (en version eg.)
-          //       resolve();
-          //     }
-          //   }
-          // }, err => {
-          //   resolve();
-          // });
         }
       });
     });
